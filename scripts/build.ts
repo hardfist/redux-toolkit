@@ -1,16 +1,17 @@
+/* eslint-disable import/first */
 // @ts-check
-const { build, transform } = require('esbuild')
-const terser = require('terser')
-const rollup = require('rollup')
-const path = require('path')
-const fs = require('fs-extra')
-const ts = require('typescript')
-const { fromJSON } = require('convert-source-map')
-const merge = require('merge-source-map')
-const { extractInlineSourcemap, removeInlineSourceMap } = require('./sourcemap')
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+import { build } from 'esbuild'
+import terser from 'terser'
+import rollup from 'rollup'
+import path from 'path'
+import fs from 'fs-extra'
+import ts from 'typescript'
+import merge from 'merge-source-map'
+import { extractInlineSourcemap, removeInlineSourceMap } from './sourcemap'
+import type { BuildOptions } from './types'
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 const outputDir = path.join(__dirname, '../dist')
-async function bundle(options) {
+async function bundle(options: BuildOptions) {
   const { format, minify, env, name, target } = options
   const result = await build({
     entryPoints: ['src/index.ts'],
@@ -60,7 +61,7 @@ async function bundle(options) {
   })
 
   for (const chunk of result.outputFiles) {
-    origin = chunk.text
+    const origin = chunk.text
     const sourcemap = extractInlineSourcemap(origin)
     const result = ts.transpileModule(removeInlineSourceMap(origin), {
       compilerOptions: {
@@ -149,7 +150,7 @@ async function main() {
   console.log('dir:', outputDir)
   await fs.remove(outputDir)
   await fs.ensureDir(outputDir)
-  const buildTargets = [
+  const buildTargets: BuildOptions[] = [
     {
       format: 'cjs',
       name: '.cjs.development',
